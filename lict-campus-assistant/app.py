@@ -101,56 +101,46 @@ def get_pipeline():
 # AUTH SCREENS
 # =====================================================================
 
-def render_auth_mode_switch():
-    """Pill-style Login/Register switcher (reskinned st.radio) + the sun/moon
-    dark-mode toggle, shown above the auth card."""
-    top_l, top_r = st.columns([3, 1])
-    with top_l:
-        choice = st.radio(
-            "auth_mode_switch",
-            ["Login", "Register"],
-            index=0 if st.session_state.auth_mode == "login" else 1,
-            horizontal=True,
-            label_visibility="collapsed",
-            key="auth_mode_radio",
-        )
-        new_mode = "login" if choice == "Login" else "register"
-        if new_mode != st.session_state.auth_mode:
-            st.session_state.auth_mode = new_mode
-            st.rerun()
-    with top_r:
-        dark = st.toggle("🌙", value=st.session_state.dark_mode, key="dark_toggle_auth")
-        if dark != st.session_state.dark_mode:
-            st.session_state.dark_mode = dark
-            st.rerun()
+def _svg_icon(path_d: str, size: int = 20) -> str:
+    return (
+        f'<svg viewBox="0 0 24 24" width="{size}" height="{size}" aria-hidden="true">'
+        f'<path fill="currentColor" d="{path_d}"/></svg>'
+    )
 
 
-def _svg_user_badge(color_var: str = "var(--primary)") -> str:
-    return f"""
-    <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true" style="color:{color_var}">
-      <path fill="currentColor" d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
-    </svg>
-    """
+def _svg_user_badge() -> str:
+    return _svg_icon(
+        "M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z",
+        size=44,
+    )
+
+
+def _svg_badge_small() -> str:
+    return _svg_icon(
+        "M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"
+    )
+
+
+def _svg_at() -> str:
+    return _svg_icon(
+        "M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10c1.99 0 3.845-.58 5.405-1.583l-.955-1.687A7.965 7.965 0 0 1 12 20a8 8 0 1 1 8-8c0 1.06-.086 1.816-.31 2.316-.207.462-.462.622-.69.622-.35 0-.5-.278-.5-1V8.5h-1.8l-.13.9A3.49 3.49 0 0 0 12 8.5a3.5 3.5 0 1 0 2.36 6.09c.31.66.94 1.16 1.84 1.16 1.98 0 3.3-1.86 3.3-4.25C19.5 6.96 16.36 2 12 2zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+    )
 
 
 def _svg_key() -> str:
-    return """
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="currentColor" d="M7.5 14a4.5 4.5 0 1 1 4.23-6.01L22 8v4l-3 3h-3l-1.5 1.5-2-2L9.3 14H7.5zm2-4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
-    </svg>
-    """
+    return _svg_icon(
+        "M7.5 14a4.5 4.5 0 1 1 4.23-6.01L22 8v4l-3 3h-3l-1.5 1.5-2-2L9.3 14H7.5zm2-4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"
+    )
 
 
 def _svg_lock() -> str:
-    return """
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="currentColor" d="M17 9V7a5 5 0 0 0-10 0v2H5v15h14V9h-2zm-8 0V7a3 3 0 0 1 6 0v2H9zm3 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
-    </svg>
-    """
+    return _svg_icon(
+        "M17 9V7a5 5 0 0 0-10 0v2H5v15h14V9h-2zm-8 0V7a3 3 0 0 1 6 0v2H9zm3 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"
+    )
 
 
 def _uiverse_card_background() -> str:
-    # starfield block (amir_6539)
+    # starfield block (amir_6539) — used behind the main chat page only
     return """
     <div class="uiverse-stars-wrap" aria-hidden="true">
       <div class="container">
@@ -163,99 +153,150 @@ def _uiverse_card_background() -> str:
     """
 
 
-def render_login():
-    _, mid, _ = st.columns([1, 1.1, 1])
-    with mid:
-        # background
-        st.markdown(_uiverse_card_background(), unsafe_allow_html=True)
-        render_auth_mode_switch()
+def render_field_label(icon_html: str, text: str):
+    """Small icon + uppercase label chip sitting just above a text input —
+    a clean, reliable stand-in for an 'icon inside the input' (which
+    Streamlit's component model can't render, since markdown and widgets
+    are always separate DOM siblings)."""
+    st.markdown(
+        f'<div class="agent-field"><span class="agent-input-icon">{icon_html}</span>{text}</div>',
+        unsafe_allow_html=True,
+    )
 
-        # one unified auth card
-        st.markdown('<div class="auth-form-card">', unsafe_allow_html=True)
+
+def _render_auth_left_panel(headline: str, sub: str):
+    """Dark brand panel shown on the left of the split auth screen —
+    logo lockup, headline/value-prop copy, and a footer line."""
+    st.markdown(
+        f"""
+        <div class="auth-left">
+            <div class="auth-left-wave"></div>
+            <div class="auth-left-brand">
+                <span class="mark">🎓</span>
+                <span>LICT Campus Assistant</span>
+            </div>
+            <div class="auth-left-mid">
+                <div class="auth-left-headline">{headline}</div>
+                <div class="auth-left-sub">{sub}</div>
+            </div>
+            <div class="auth-left-footer">© 2026 LICT Campus Assistant. All rights reserved.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_login():
+    st.markdown('<div class="auth-shell">', unsafe_allow_html=True)
+    left, right = st.columns([1, 1.15], gap="small")
+
+    with left:
+        _render_auth_left_panel(
+            "Your AI guide to Lumbini ICT Campus.",
+            "Ask questions, find resources, and get instant answers — "
+            "sign in to pick up right where you left off.",
+        )
+
+    with right:
+        st.markdown('<div class="auth-right">', unsafe_allow_html=True)
+        st.markdown('<div class="auth-right-inner">', unsafe_allow_html=True)
+
         st.markdown(
             f"""
-            <div style="display:flex; flex-direction:column; gap:0.2rem; align-items:center; text-align:center;">
-              <div class="auth-icon" style="margin-top:-2px;">{_svg_user_badge()}</div>
-              <div class="auth-form-title" style="margin-top:0.15rem;">{T('login_title')}</div>
-              <div class="auth-form-message">{T('login_subtitle')}</div>
-            </div>
+            <div class="auth-right-heading">{T('login_title')}</div>
+            <div class="auth-right-sub">{T('login_subtitle')}</div>
             """,
             unsafe_allow_html=True,
         )
 
         with st.form("login_form", clear_on_submit=False):
-            st.markdown('<div class="agent-form">', unsafe_allow_html=True)
-
-            # Username field
-            st.markdown(
-                '<div class="agent-field">'
-                + f'<span class="agent-input-icon">{_svg_user_badge()}</span>'
-                + '</div>',
-                unsafe_allow_html=True,
-            )
+            render_field_label("", T("username"))
             username = st.text_input(
-                T("username"),
-                key="login_username",
-                label_visibility="collapsed",
+                T("username"), key="login_username", label_visibility="collapsed",
+                placeholder=T("username"),
             )
 
-            # Password field
-            st.markdown(
-                '<div class="agent-field">'
-                + f'<span class="agent-input-icon">{_svg_lock()}</span>'
-                + '</div>',
-                unsafe_allow_html=True,
-            )
+            render_field_label("", T("password"))
             password = st.text_input(
-                T("password"),
-                key="login_password",
-                type="password",
-                label_visibility="collapsed",
+                T("password"), key="login_password", type="password",
+                label_visibility="collapsed", placeholder=T("password"),
             )
 
-            st.markdown('<div class="agent-actions">', unsafe_allow_html=True)
-            submitted = st.form_submit_button(T("login_button"), use_container_width=False)
-            st.markdown('</div>', unsafe_allow_html=True)
+            submitted = st.form_submit_button(T("login_button"), use_container_width=True)
 
             if submitted:
-                user, message = db.verify_user(username, password)
-                if user:
-                    st.session_state.auth_user = user
-                    st.session_state.failed_login_count = 0
-                    st.rerun()
+                if not username.strip() or not password:
+                    st.error("Please fill in all fields.")
                 else:
-                    st.error(message)
+                    user, message = db.verify_user(username, password)
+                    if user:
+                        st.session_state.auth_user = user
+                        st.session_state.failed_login_count = 0
+                        st.rerun()
+                    else:
+                        st.error(message)
 
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown(
-            f'<p class="signin" style="text-align:center; padding-bottom:1rem;">{T("switch_to_register")}</p>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="signin-wrap">', unsafe_allow_html=True)
+        if st.button(T("switch_to_register"), key="go_to_register", use_container_width=False):
+            st.session_state.auth_mode = "register"
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+        st.markdown('</div>', unsafe_allow_html=True)  # .auth-right-inner
+        st.markdown('</div>', unsafe_allow_html=True)  # .auth-right
 
+    st.markdown('</div>', unsafe_allow_html=True)  # .auth-shell
 
 
 def render_register():
-    _, mid, _ = st.columns([1, 1.1, 1])
-    with mid:
-        render_auth_mode_switch()
-        st.markdown('<div class="auth-form-card">', unsafe_allow_html=True)
+    st.markdown('<div class="auth-shell">', unsafe_allow_html=True)
+    left, right = st.columns([1, 1.15], gap="small")
+
+    with left:
+        _render_auth_left_panel(
+            "Join the LICT Campus community.",
+            "Create an account to save your conversations and get "
+            "personalized answers about courses, events, and campus life.",
+        )
+
+    with right:
+        st.markdown('<div class="auth-right">', unsafe_allow_html=True)
+        st.markdown('<div class="auth-right-inner">', unsafe_allow_html=True)
+
         st.markdown(
             f"""
-            <div class="auth-icon">✨</div>
-            <div class="auth-form-title">{T('register_title')}</div>
-            <p class="auth-form-message">{T('register_subtitle')}</p>
+            <div class="auth-right-heading">{T('register_title')}</div>
+            <div class="auth-right-sub">{T('register_subtitle')}</div>
             """,
             unsafe_allow_html=True,
         )
 
-        with st.form("register_form"):
-            display_name = st.text_input(T("display_name"))
-            username = st.text_input(T("username"))
-            password = st.text_input(T("password"), type="password")
-            confirm = st.text_input(T("confirm_password"), type="password")
+        with st.form("register_form", clear_on_submit=False):
+            render_field_label("", T("display_name"))
+            display_name = st.text_input(
+                T("display_name"), key="reg_display_name", label_visibility="collapsed",
+                placeholder=T("display_name"),
+            )
+
+            render_field_label("", T("username"))
+            username = st.text_input(
+                T("username"), key="reg_username", label_visibility="collapsed",
+                placeholder=T("username"),
+            )
+
+            render_field_label("", T("password"))
+            password = st.text_input(
+                T("password"), key="reg_password", type="password",
+                label_visibility="collapsed", placeholder=T("password"),
+            )
+            st.markdown('<div class="auth-hint">Minimum 6 characters.</div>', unsafe_allow_html=True)
+
+            render_field_label("", T("confirm_password"))
+            confirm = st.text_input(
+                T("confirm_password"), key="reg_confirm", type="password",
+                label_visibility="collapsed", placeholder=T("confirm_password"),
+            )
+
             submitted = st.form_submit_button(T("register_button"), use_container_width=True)
 
             if submitted:
@@ -270,16 +311,18 @@ def render_register():
                     else:
                         st.error(message)
 
-        st.markdown(
-            f'<p class="signin" style="text-align:center; padding-bottom:1rem;">{T("switch_to_login")}</p>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="signin-wrap">', unsafe_allow_html=True)
+        if st.button(T("switch_to_login"), key="go_to_login", use_container_width=False):
+            st.session_state.auth_mode = "login"
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+        st.markdown('</div>', unsafe_allow_html=True)  # .auth-right-inner
+        st.markdown('</div>', unsafe_allow_html=True)  # .auth-right
 
-# =====================================================================
-# CHAT RENDERING HELPERS
-# =====================================================================
+    st.markdown('</div>', unsafe_allow_html=True)  # .auth-shell
+
+
 
 def render_message(msg: dict):
     role = msg["role"]

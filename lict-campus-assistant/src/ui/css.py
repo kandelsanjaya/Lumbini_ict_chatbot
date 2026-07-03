@@ -529,17 +529,11 @@ def inject_css(theme: dict):
         font-weight: 800;
     }}
     .agent-field {{
-        display: flex;
-        align-items: center;
         justify-content: center;
-        gap: 0.55em;
-        border-radius: 18px;
-        padding: 0.65em 0.9em;
-        border: none;
-        outline: none;
-        color: white;
-        background-color: rgba(23,23,23,0.35);
-        box-shadow: inset 2px 5px 10px rgba(0,0,0,0.35);
+    gap: 0.55em;
+    border-radius: 18px;
+   
+    border: none;
     }}
     .agent-input-icon {{
         height: 1.3em;
@@ -704,6 +698,134 @@ def inject_css(theme: dict):
     }}
 
     /* =====================================================================
+       AUTH BRAND HEADER (logo lockup shown above the login/register card)
+    ===================================================================== */
+    .auth-brand {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.15rem;
+        margin: 0.4rem 0 1.1rem 0;
+        animation: fadeInUp 0.5s ease;
+    }}
+    .auth-brand-mark {{
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.7rem;
+        background: linear-gradient(135deg, {c['primary']}, {c['primary2']});
+        box-shadow: 0 10px 28px {c['glow']};
+        margin-bottom: 0.5rem;
+        animation: floatY 3.2s ease-in-out infinite;
+    }}
+    @keyframes floatY {{
+        0%, 100% {{ transform: translateY(0px); }}
+        50% {{ transform: translateY(-6px); }}
+    }}
+    .auth-brand-name {{
+        font-family: 'Sora', sans-serif;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: {c['text']};
+        letter-spacing: 0.2px;
+    }}
+    .auth-brand-name span {{
+        background: linear-gradient(90deg, {c['primary']}, {c['primary2']});
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }}
+    .auth-brand-tag {{
+        color: {c['subtext']};
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+    }}
+
+    /* =====================================================================
+       AUTH FIELD LABEL ROW (icon + text sitting just above each input,
+       replacing a fake "icon inside the input" that Streamlit can't do
+       reliably — this reads as a clean, professional floating-label group)
+    ===================================================================== */
+ 
+    .agent-input-icon {{
+        height: 1.05em;
+        width: 1.05em;
+        color: {c['primary']};
+        opacity: 0.95;
+        flex: 0 0 auto;
+        display: inline-flex;
+    }}
+    .agent-input-icon svg {{ width: 100%; height: 100%; fill: currentColor; }}
+
+    /* =====================================================================
+       FORM SUBMIT BUTTON (st.form_submit_button isn't covered by .stButton,
+       so without this it fell back to Streamlit's plain grey default)
+    ===================================================================== */
+    [data-testid="stFormSubmitButton"] button {{
+        width: 100%;
+        background: linear-gradient(90deg, {c['primary']}, {c['primary2']});
+        color: white !important;
+        border: none;
+        border-radius: 14px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        margin-top: 0.6rem;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        box-shadow: 0 6px 20px {c['glow']};
+    }}
+    [data-testid="stFormSubmitButton"] button:hover {{
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 10px 28px {c['glow']};
+    }}
+    [data-testid="stFormSubmitButton"] button:active {{
+        transform: translateY(0px) scale(0.98);
+    }}
+    [data-testid="stFormSubmitButton"] button p {{
+        font-weight: 700 !important;
+    }}
+
+    /* =====================================================================
+       "Don't have an account? Register" — a real st.button reskinned as a
+       centered text link (was previously unstyled/unclickable markdown)
+    ===================================================================== */
+    .signin-wrap {{
+        display: flex;
+        justify-content: center;
+        margin: 0.3rem 0 0.9rem 0;
+    }}
+    .signin-wrap .stButton button {{
+        background: transparent !important;
+        color: {c['subtext']} !important;
+        box-shadow: none !important;
+        border: none !important;
+        font-weight: 600;
+        font-size: 0.86rem;
+        padding: 0.3rem 0.5rem;
+        text-decoration: underline;
+        text-decoration-color: transparent;
+        transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    }}
+    .signin-wrap .stButton button:hover {{
+        color: {c['primary']} !important;
+        text-decoration-color: {c['primary']} !important;
+        transform: none;
+        box-shadow: none !important;
+    }}
+
+    .auth-hint {{
+        color: {c['subtext']};
+        font-size: 0.74rem;
+        opacity: 0.85;
+        padding: 0 0.15rem;
+        margin-top: -0.35rem;
+    }}
+
+    /* =====================================================================
        CONVERSATION SUMMARY CHIP
     ===================================================================== */
     .summary-chip {{
@@ -718,6 +840,187 @@ def inject_css(theme: dict):
         animation: fadeInUp 0.4s ease;
     }}
     .summary-chip b {{ color: {c['primary']}; }}
+
+    /* =====================================================================
+       PROFESSIONAL SPLIT-SCREEN AUTH (login / register)
+       Replaces the old glowing glass-card auth with a clean two-panel
+       layout: dark brand panel on the left, neutral light form panel on
+       the right — modelled on modern B2B SaaS sign-in screens.
+    ===================================================================== */
+    [data-testid="stAppViewContainer"] .main .block-container:has(.auth-shell) {{
+        padding: 0 !important;
+        max-width: 100% !important;
+    }}
+    .auth-shell {{
+           border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    animation: fadeInScale 0.45s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    }}
+
+    /* ---- left brand panel ---- */
+    .auth-left {{
+        flex: 1 1 44%;
+        position: relative;
+        background: linear-gradient(160deg, #0b1120 0%, #0d1a33 55%, #050914 100%);
+        padding: 3rem 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #f5f7fb;
+        overflow: hidden;
+        min-height: 100%;
+    }}
+    .auth-left::before {{
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 15% 20%, {c['primary']}33, transparent 55%),
+            radial-gradient(circle at 85% 85%, {c['primary2']}2e, transparent 50%);
+        pointer-events: none;
+    }}
+    .auth-left > * {{ position: relative; z-index: 1; }}
+
+    .auth-left-brand {{
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: 'Sora', sans-serif;
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 0.2px;
+    }}
+    .auth-left-brand .mark {{
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, {c['primary']}, {c['primary2']});
+        font-size: 1.05rem;
+        box-shadow: 0 6px 18px {c['glow']};
+    }}
+
+    .auth-left-mid {{ margin: 2.4rem 0; max-width: 420px; }}
+    .auth-left-headline {{
+        font-family: 'Sora', sans-serif;
+        font-weight: 700;
+        font-size: 2rem;
+        line-height: 1.25;
+        margin-bottom: 0.9rem;
+        color: #ffffff;
+    }}
+    .auth-left-sub {{
+        font-size: 0.98rem;
+        line-height: 1.6;
+        color: rgba(245,247,251,0.65);
+    }}
+
+    .auth-left-footer {{
+        font-size: 0.78rem;
+        color: rgba(245,247,251,0.4);
+        letter-spacing: 0.2px;
+    }}
+
+    .auth-left-wave {{
+        position: absolute;
+        bottom: -20%;
+        left: -10%;
+        width: 130%;
+        height: 60%;
+        background: radial-gradient(ellipse at bottom, {c['primary']}22, transparent 70%);
+        filter: blur(30px);
+        pointer-events: none;
+    }}
+
+    /* ---- right form panel ---- */
+   
+    .auth-right-inner {{
+        width: 100%;
+        max-width: 380px;
+    }}
+    .auth-right-heading {{
+        font-family: 'Sora', sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #ffffff;
+        text-align: center;
+        margin-bottom: 0.3rem;
+    }}
+    .auth-right-sub {{
+        font-size: 0.88rem;
+        color: #64748b;
+        text-align: center;
+        margin-bottom: 1.7rem;
+    }}
+
+
+
+
+    .auth-shell  {{
+        display: block;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0 0.1rem;
+        margin: 0.9rem 0 0.35rem 0;
+        color: #334155;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.1px;
+    }}
+    .auth-shell .agent-input-icon {{ display: none; }}
+
+    .auth-shell .stTextInput input {{
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1.5px solid #dfe3ea !important;
+        border-radius: 10px !important;
+        padding: 0.65rem 0.9rem !important;
+        font-size: 0.93rem !important;
+        box-shadow: none !important;
+    }}
+    .auth-shell .stTextInput input::placeholder {{ color: #a3aab8 !important; }}
+    .auth-shell .stTextInput input:focus {{
+        border-color: {c['primary2']} !important;
+        box-shadow: 0 0 0 3px {c['primary2']}22 !important;
+    }}
+
+    .auth-shell [data-testid="stFormSubmitButton"] button {{
+        background: linear-gradient(90deg, {c['primary']}, {c['primary2']}) !important;
+        border-radius: 10px !important;
+        padding: 0.7rem 1.5rem !important;
+        font-size: 0.95rem !important;
+        margin-top: 1rem !important;
+        box-shadow: 0 6px 18px {c['glow']} !important;
+    }}
+
+    .auth-shell .auth-hint {{
+        color: #94a3b8;
+        font-size: 0.72rem;
+        margin: -0.15rem 0 0 0.1rem;
+    }}
+
+    .auth-shell .signin-wrap {{ margin-top: 1.1rem; }}
+    .auth-shell .signin-wrap .stButton button {{
+        color: #475569 !important;
+        font-size: 0.85rem;
+    }}
+    .auth-shell .signin-wrap .stButton button:hover {{ color: {c['primary2']} !important; }}
+
+    .auth-shell .uiverse-stars-wrap {{ display: none !important; }}
+
+    @media (max-width: 900px) {{
+        .auth-shell {{ flex-direction: column; min-height: auto; border-radius: 16px; }}
+        .auth-left {{ padding: 2rem 1.6rem; min-height: 220px; }}
+        .auth-left-headline {{ font-size: 1.4rem; }}
+        .auth-left-mid {{ margin: 1.2rem 0; }}
+        .auth-right {{ padding: 2.2rem 1.4rem; }}
+    }}
 
     /* =====================================================================
        MOBILE RESPONSIVENESS
