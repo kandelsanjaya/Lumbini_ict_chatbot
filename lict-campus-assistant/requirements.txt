@@ -1,0 +1,19 @@
+# --- Core app ---
+streamlit==1.58.0
+python-dotenv==1.2.2
+requests==2.34.2
+
+# --- Database / Auth ---
+bcrypt==5.0.0
+
+# --- RAG pipeline (retrieval + LLM + web search) ---
+numpy==2.5.0
+faiss-cpu==1.14.3
+sentence-transformers==5.6.0
+torch==2.12.1
+groq==1.5.0
+tavily-python==0.7.26
+beautifulsoup4==4.15.0
+
+# --- Optional data-ingestion tools (src/tools/scraper.py, search_index.py) ---
+# (only requests + beautifulsoup4 above are needed for these)
